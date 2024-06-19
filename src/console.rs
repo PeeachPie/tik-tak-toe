@@ -22,8 +22,8 @@ impl ConsoleGame {
 
             let status = self.game.status();
 
-            if status != 0 {
-                Self::end(status);
+            if let game::GameStatus::End(endst) = status {
+                Self::end(endst);
                 self.print_field();
                 break;
             }
@@ -55,12 +55,13 @@ impl ConsoleGame {
     }
 
 
-    fn end(status: u8) {
+    fn end(status: game::EndStatus) {
         println!("GAME OVER!");
-        println!("Game ended {}", 
-            if status == game::DRAW {"in a draw"} 
-            else if status == game::FIRST_WIN {"with 1st player winning!"}
-            else {"with 2nd player winning!"}
+        println!("Game ended {}", match status {
+                game::EndStatus::Draw => "in a draw",
+                game::EndStatus::FirstWin => "with 1st player winning!",
+                game::EndStatus::SecondWin => "with 2nd player winning!",
+            }
         )
     }
 

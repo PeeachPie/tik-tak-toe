@@ -24,10 +24,21 @@ pub enum PlayerType {
 }
 
 // Game status
-pub const ACTIVE: u8 = 0;
-pub const FIRST_WIN: u8 = 1;
-pub const SECOND_WIN: u8 = 2;
-pub const DRAW: u8 = 3;
+#[derive(Debug)]
+#[derive(PartialEq, Eq)]
+pub enum EndStatus {
+    FirstWin,
+    SecondWin,
+    Draw,
+}
+#[derive(Debug)]
+#[derive(PartialEq, Eq)]
+pub enum GameStatus {
+    Active,
+    End(EndStatus)
+}
+
+
 
 // Diagonals
 const FROM_UP_LEFT: u8 = 0;
@@ -141,12 +152,15 @@ impl Game {
 
         for mov in self.possible_moves() {
             let st = self.status_in(&mov, self.settings.bot_lvl, self.cur_player());
-            println!("st {st} mov {:?}", mov);
-            if st == DRAW || st == ACTIVE {
-                draw_moves.push(mov);
-            }
-            else if st == self.win_for(self.cur_player()) {
+            let win = self.win_for(self.cur_player());
+            let lose = self.lose_for(self.cur_player());
+            println!("st {:?} mov {:?}",st, mov);
+
+            if st == win {
                 win_moves.push(mov);
+            }
+            else if st != lose {
+                draw_moves.push(mov);
             }
         }
 
@@ -204,31 +218,32 @@ impl Game {
         self.field[mov.y][mov.x] = EMPTY;
     }
 
-    fn lose_for(&self, player: u8) -> u8 {
+    fn lose_for(&self, player: u8) -> GameStatus {
         return if player == 1 {
-            SECOND_WIN
+            GameStatus::End(EndStatus::SecondWin)
         } else {
-            FIRST_WIN
+            GameStatus::End(EndStatus::FirstWin)
         };
     }
 
-    fn win_for(&self, player: u8) -> u8 {
+    fn win_for(&self, player: u8) -> GameStatus {
         return if player == 1 {
-            FIRST_WIN
+            GameStatus::End(EndStatus::FirstWin)
         } else {
-            SECOND_WIN
+            GameStatus::End(EndStatus::SecondWin)
         };
     }
 
-    fn status_in(&mut self, mov: &Move, cur_depth: u8, player: u8) -> u8 {
+    fn status_in(&mut self, mov: &Move, cur_depth: u8, player: u8) -> GameStatus {
         self.place(mov);
         let status = self.status();
-        if (status != ACTIVE) || (cur_depth == 0) {
+
+        if (cur_depth == 0) || (status != GameStatus::Active) {
             self.remove(&mov);
             return status;
         }
 
-        let mut sts: Vec<u8> = Vec::new();
+        let mut sts: Vec<GameStatus> = Vec::new();
 
         for mov in self.possible_moves() {
             sts.push(self.status_in(&mov, cur_depth - 1, player));
@@ -242,20 +257,24 @@ impl Game {
 
         if self.cur_player() == player {
             for st in sts {
-                if st == self.win_for(player) {
+                let win = self.win_for(player);
+                let lose = self.lose_for(player);
+                if st == win {
                     res = st;
                 }
-                if res == self.lose_for(player) {
+                else if res == lose {
                     res = st;
                 }
             }
         }
         else {
             for st in sts {
-                if st == self.lose_for(player) {
+                let win = self.win_for(player);
+                let lose = self.lose_for(player);
+                if st == lose {
                     res = st;
                 }
-                if res == self.win_for(player) {
+                else if res == win {
                     res = st;
                 }
             }
@@ -319,13 +338,21 @@ impl Game {
         return win_pos;
     }
 
-    pub fn status(&self) -> u8 {
+    pub fn status(&self) -> GameStatus {
         return 
             if self.is_win_position() {
-                if self.prev_player() == 1 { FIRST_WIN } else { SECOND_WIN }
+                if self.prev_player() == 1 { 
+                    GameStatus::End(EndStatus::FirstWin) 
+                } else { 
+                    GameStatus::End(EndStatus::SecondWin)
+                }
             }
             else {
-                if self.has_free_cell() { ACTIVE } else { DRAW }
+                if self.has_free_cell() { 
+                    GameStatus::Active 
+                } else { 
+                    GameStatus::End(EndStatus::Draw) 
+                }
             };
     }
 }
