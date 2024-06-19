@@ -20,7 +20,7 @@ fn main() {
 
     let settings = game::Settings {
         mode: game::Mode::OnePlayer,
-        bot_lvl: 1,
+        bot_lvl: 10,
         bot_player: player % 2 + 1,
     };
 

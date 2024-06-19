@@ -1,4 +1,4 @@
-use crate::api::game::{self, Mode, Settings};
+use crate::api::game::{self, GameStatus, Mode};
 use std::io;
 
 pub struct ConsoleGame {
@@ -22,7 +22,7 @@ impl ConsoleGame {
 
             let status = self.game.status();
 
-            if status != 0 {
+            if status != game::GameStatus::Active {
                 Self::end(status);
                 self.print_field();
                 break;
@@ -55,11 +55,11 @@ impl ConsoleGame {
     }
 
 
-    fn end(status: u8) {
+    fn end(status: GameStatus) {
         println!("GAME OVER!");
         println!("Game ended {}", 
-            if status == game::DRAW {"in a draw"} 
-            else if status == game::FIRST_WIN {"with 1st player winning!"}
+            if status == game::GameStatus::Draw {"in a draw"} 
+            else if status == game::GameStatus::FirstWin {"with 1st player winning!"}
             else {"with 2nd player winning!"}
         )
     }
