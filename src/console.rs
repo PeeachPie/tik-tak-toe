@@ -1,4 +1,4 @@
-use crate::api::game::{self, GameStatus, Mode, Settings};
+use crate::api::game::{self, GameStatus, Mode};
 use std::io;
 
 pub struct ConsoleGame {

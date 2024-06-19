@@ -11,9 +11,10 @@ pub enum MoveStatus {
 }
 
 // Gaming modes
+#[allow(dead_code)]
 pub enum Mode {
     OnePlayer,
-    TwoPlayers,
+    TwoPlayers
 }
 
 // Player type
@@ -24,7 +25,7 @@ pub enum PlayerType {
 }
 
 // Game status
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Debug)]
 pub enum GameStatus{
     Active,
     FirstWin,
@@ -148,7 +149,7 @@ impl Game {
 
         for mov in self.possible_moves() {
             let st = self.status_in(&mov, self.settings.bot_lvl, self.cur_player());
-            // println!("st {st} mov {:?}", mov);
+            println!("st {st:?} mov {:?}", mov);
             if st == GameStatus::Draw || st == GameStatus::Active {
                 draw_moves.push(mov);
             }
