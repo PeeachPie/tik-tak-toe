@@ -9,5 +9,3 @@ git clone https://github.com/PeeachPie/tik-tak-toe
 cd tik-tak-toe
 cargo build
 ```
-
-
