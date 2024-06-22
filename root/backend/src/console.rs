@@ -1,4 +1,4 @@
-use crate::api::game::{self, Mode, Settings};
+use crate::api::game;
 use std::io;
 
 pub struct ConsoleGame {
@@ -46,7 +46,7 @@ impl ConsoleGame {
                     }
                 };
 
-                return game::Move {x, y};
+                return game::Move::new(x, y);
             }
             game::PlayerType::Bot => {
                 return self.game.get_best_move();
@@ -73,8 +73,8 @@ impl ConsoleGame {
     fn print_game_info(&self) {
         let settings = self.game.get_settings();
         println!("Game started in {}", match settings.mode {
-            Mode::TwoPlayers => String::from("two players mode"),
-            Mode::OnePlayer => format!("one player mode, bot lvl is {}", settings.bot_lvl),
+            game::Mode::TwoPlayers => String::from("two players mode"),
+            game::Mode::OnePlayer => format!("one player mode, bot lvl is {}", settings.bot_lvl),
         });
 
     }

@@ -1,14 +1,9 @@
-use rand::Rng;
+pub mod mov;
+pub mod settings;
+pub use crate::api::game::mov::*;
+pub use crate::api::game::settings::*;
 
-// Move errors
-pub enum MoveError {
-    OutOfField,
-    AlreadyOccupied,
-}
-pub enum MoveStatus {
-    Correct,
-    Error (MoveError),
-}
+use rand::Rng;
 
 // Gaming modes
 pub enum Mode {
@@ -17,7 +12,6 @@ pub enum Mode {
 }
 
 // Player type
-
 pub enum PlayerType {
     Bot,
     Man,
@@ -46,29 +40,6 @@ const FROM_UP_RIGHT: u8 = 1;
 
 // Field type
 const EMPTY: u8 = 0;
-
-pub struct Settings {
-    pub mode: Mode,
-    pub bot_player: u8,
-    pub bot_lvl: u8,
-}
-
-impl Settings {
-    pub fn default() -> Settings {
-        Settings {
-            mode: Mode::OnePlayer,
-            bot_player: 2,
-            bot_lvl: 0,
-        }
-    }
-}
-
-#[derive(Debug)]
-pub struct Move {
-    pub x: usize,
-    pub y: usize,
-}
-
 pub struct Game {
     field: [[u8; 3]; 3],
     settings: Settings,
@@ -171,7 +142,7 @@ impl Game {
         }
         else if draw_moves.len() != 0 {
             if self.cur_move() == 0 && self.settings.bot_lvl != 0 {
-                best_move = Move {x: 1, y: 1};
+                best_move = Move::new(0, 0);
             }
             else {
                 best_move = self.choose_random_move(&draw_moves);
@@ -202,7 +173,7 @@ impl Game {
         for i in 0..3 {
             for j in 0..3 {
                 if self.field[i][j] == EMPTY {
-                    moves.push(Move {x: j, y: i})
+                    moves.push(Move::new(j, i));
                 }
             }
         }
@@ -211,11 +182,11 @@ impl Game {
     }
 
     pub fn place(&mut self, mov: &Move) {
-        self.field[mov.y][mov.x] = self.cur_player();
+        self.field[mov.y()][mov.x()] = self.cur_player();
     }
 
     fn remove(&mut self, mov: &Move) {
-        self.field[mov.y][mov.x] = EMPTY;
+        self.field[mov.y()][mov.x()] = EMPTY;
     }
 
     fn lose_for(&self, player: u8) -> GameStatus {
@@ -286,8 +257,8 @@ impl Game {
     }
 
     fn choose_random_move(&self, moves: &Vec<Move>) -> Move {
-        let random_id = rand::thread_rng().gen_range(0..moves.len());
-        let mov = Move {x: moves[random_id].x, y: moves[random_id].y};
+        let rand_id = rand::thread_rng().gen_range(0..moves.len());
+        let mov = Move::new(moves[rand_id].x(), moves[rand_id].y());
         return mov;
     }
 
