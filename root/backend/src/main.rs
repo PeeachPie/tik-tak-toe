@@ -1,5 +1,6 @@
 mod api;
 mod console;
+mod server;
 use clap::{Parser, ValueEnum};
 
 #[derive(Parser)]
@@ -22,6 +23,6 @@ fn main() {
 
     match args.mode {
         Mode::Client => {console::start_client()},
-        Mode::Server => {println!("Not implemented")}
+        Mode::Server => {server::start_server()}
     }
 }
